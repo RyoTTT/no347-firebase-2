@@ -1,29 +1,29 @@
 import { auth } from './firebase';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { useNavigate, Link } from 'react-router-dom';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 
-const SignUp = () => {
+const Login = () => {
   const navigate = useNavigate();
   const [error, setError] = useState('');
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const { email, password } = event.target.elements;
-    createUserWithEmailAndPassword(auth, email.value, password.value)
+
+    signInWithEmailAndPassword(auth, email.value, password.value)
       .then(() => {
         navigate('/');
       })
       .catch((error) => {
-        console.log(error.code);
         switch (error.code) {
           case 'auth/invalid-email':
             setError('正しいメールアドレスの形式で入力してください。');
             break;
-            case 'auth/weak-password':
-              setError('パスワードは6文字以上を設定する必要があります。');
-              break;
-          case 'auth/email-already-in-use':
-            setError('そのメールアドレスは登録済みです。');
+          case 'auth/user-not-found':
+            setError('メールアドレスかパスワードに誤りがあります。');
+            break;
+          case 'auth/wrong-password':
+            setError('メールアドレスかパスワードに誤りがあります。');
             break;
           default:
             setError('メールアドレスかパスワードに誤りがあります。');
@@ -34,7 +34,8 @@ const SignUp = () => {
 
   return (
     <div>
-      <h1>ユーザ登録</h1>
+      <h1>ログイン</h1>
+
       <form onSubmit={handleSubmit}>
         {error && <p style={{ color: 'red' }}>{error}</p>}
         <div>
@@ -51,14 +52,14 @@ const SignUp = () => {
           />
         </div>
         <div>
-          <button>登録</button>
+          <button>ログイン</button>
         </div>
         <div>
-          ユーザ登録済の場合は<Link to={'/login'}>こちら</Link>から
+          ユーザ登録は<Link to={'/signup'}>こちら</Link>から
         </div>
       </form>
     </div>
   );
 };
 
-export default SignUp;
+export default Login;

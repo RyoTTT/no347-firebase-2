@@ -4,7 +4,6 @@ import Login from './Login';
 import { AuthProvider } from './AuthContext';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import PrivateRoute from './PrivateRoute';
-import PublicRoute from './PublicRoute';
 
 function App() {
   return (
@@ -20,10 +19,8 @@ function App() {
                 </PrivateRoute>
               }
             />
-            <Route element={<PublicRoute />}>
-              <Route path="/signup" element={<SignUp />} />
-              <Route path="/login" element={<Login />} />
-            </Route>
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/login" element={<Login />} />
           </Routes>
         </BrowserRouter>
       </div>
