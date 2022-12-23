@@ -1,31 +1,35 @@
-import Home from './Home';
-import SignUp from './SignUp';
-import Login from './Login';
-import { AuthProvider } from './AuthContext';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import PrivateRoute from './PrivateRoute';
+import { createContext, useState, useContext, useEffect } from 'react';
+import { auth } from './firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
-function App() {
-  return (
-    <AuthProvider>
-      <div style={{ margin: '2em' }}>
-        <BrowserRouter>
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <PrivateRoute>
-                  <Home />
-                </PrivateRoute>
-              }
-            />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/login" element={<Login />} />
-          </Routes>
-        </BrowserRouter>
-      </div>
-    </AuthProvider>
-  );
+const AuthContext = createContext();
+
+export function useAuthContext() {
+  return useContext(AuthContext);
 }
 
-export default App;
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  const value = {
+    user,
+    loading,
+  };
+
+  useEffect(() => {
+    const unsubscribed = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setLoading(false);
+    });
+    return () => {
+      unsubscribed();
+    };
+  }, []);
+
+  return (
+    <AuthContext.Provider value={value}>
+      {!loading && children}
+    </AuthContext.Provider>
+  );
+}
